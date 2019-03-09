@@ -10,24 +10,34 @@
  apply-binary-op
  apply-unary-op)
 
+;; Make a list of one element
 (define (list1 x) (cons x '()))
+;; Make a list of two elements
 (define (list2 x y) (cons x (cons y '())))
+;; Make a list of three elements
 (define (list3 x y z) (cons x (cons y (cons z '()))))
 
+;; Modify racket's `assoc` by returning only value of the
+;; returned key value pair and false otherwise.
 (define (*assoc x y)
   (if (not (assoc x y)) #f
       (cadr (assoc x y))))
 
+;; Make a list of key value pairs.
+;; If a list of existing key value pairs is given, add on to it.
+;; If a key already exists within the given list, replace it. 
 (define (mkassoc x y alist)
   (if (null? alist) (list1 (list2 x y))
       (if (equal? x (caar alist)) (cons (list2 x y) (cdr alist))
           (cons (car alist) (mkassoc x y (cdr alist))))))
 
+;; Recursively add multiple key value pairs to a list using mkassoc
 (define (mkassoc* keys values al)
   (if (null? keys) al
       (mkassoc* (cdr keys) (cdr values)
                 (mkassoc (car keys) (car values) al))))
 
+;; Apply function f to x and y
 (define (apply-binary-op f x y)
   (cond
     ((equal? f 'cons) (cons x y))
@@ -42,6 +52,7 @@
     ((equal? f 'equal?) (equal? x y))
     (else (error "apply-binary: operator not supported" f))))
 
+;; Apply function f to x
 (define (apply-unary-op f x)
   (cond
     ((equal? f 'quote) x)

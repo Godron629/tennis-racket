@@ -1,5 +1,15 @@
 #lang racket
 
+(provide
+ list1
+ list2
+ list3
+ *assoc
+ mkassoc
+ mkassoc*
+ apply-binary-op
+ apply-unary-op)
+
 (define (list1 x) (cons x '()))
 (define (list2 x y) (cons x (cons y '())))
 (define (list3 x y z) (cons x (cons y (cons z '()))))
@@ -12,6 +22,11 @@
   (if (null? alist) (list1 (list2 x y))
       (if (equal? x (caar alist)) (cons (list2 x y) (cdr alist))
           (cons (car alist) (mkassoc x y (cdr alist))))))
+
+(define (mkassoc* keys values al)
+  (if (null? keys) al
+      (mkassoc* (cdr keys) (cdr values)
+                (mkassoc (car keys) (car values) al))))
 
 (define (apply-binary-op f x y)
   (cond

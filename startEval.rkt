@@ -61,5 +61,6 @@
     ((equal? f 'number?) (number? x))
     ((equal? f 'list?) (list? x))
     ((equal? f 'symbol?) (symbol? x))
+    ((equal? f 'pair?) (pair? x))
     ((equal? f 'null?) (null? x))
     (else (error "apply-unary: operator not supported" f))))

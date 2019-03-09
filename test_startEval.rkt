@@ -65,5 +65,8 @@
 (check-equal? (apply-unary-op 'list? '1) #f)
 (check-equal? (apply-unary-op 'symbol? 1) #f)
 (check-equal? (apply-unary-op 'symbol? 'x) #t)
+(check-equal? (apply-unary-op 'pair? '(1 2)) #t)
+(check-equal? (apply-unary-op 'pair? '()) #f)
+(check-equal? (apply-unary-op 'pair? '1) #f)
 (check-equal? (apply-unary-op 'null? '()) #t)
 (check-equal? (apply-unary-op 'null? '(1)) #f)

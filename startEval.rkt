@@ -8,7 +8,12 @@
  mkassoc
  mkassoc*
  apply-binary-op
- apply-unary-op)
+ apply-unary-op
+ evallist
+ apply
+ apply-value-op
+ handle-if
+ startEval)
 
 ;; Make a list of one element
 (define (list1 x) (cons x '()))
@@ -64,3 +69,54 @@
     ((equal? f 'pair?) (pair? x))
     ((equal? f 'null?) (null? x))
     (else (error "apply-unary: operator not supported" f))))
+
+;; Recursively evaluate every element of given expression
+(define (evallist el env)
+  (if (null? el) '()
+      (cons (startEval (car el) env)
+            (evallist (cdr el) env))))
+
+;; Evaluate expression el
+(define (apply el)
+  ;; took env out !!
+  (apply-value-op (car el) (cdr el)))
+
+;; Apply primop to args
+(define (apply-value-op primop args)
+  (if (equal? (length args) 1)
+      ;; took (cadr primop) out !!
+      (apply-unary-op primop (car args))
+      (apply-binary-op primop (car args) (cadr args))))
+
+;; Check predicate and return consequent or alternative
+(define (handle-if exp env)
+  (let ((result (startEval (cadr exp) env)))
+    (if (or (null? result) (not result))
+      ;; Predicate is False, execute the alternative
+      (startEval (cadddr exp) env)
+      ;; Predicate is True, execute the consequent
+      (startEval (caddr exp) env))))
+
+(define (startEval exp env)
+  (cond
+    ((number? exp) exp)
+    ((symbol? exp)
+     (if (*assoc exp env)
+         (*assoc exp env)
+         (error "Symbol not defined: " exp)))
+    ((equal? (car exp) 'quote) (cadr exp))
+    ((equal? (car exp) 'if)
+     (handle-if (exp env)))
+    (else (apply (evallist exp env)))))
+
+
+
+
+
+
+
+
+
+
+
+ 

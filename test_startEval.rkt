@@ -70,3 +70,36 @@
 (check-equal? (apply-unary-op 'pair? '1) #f)
 (check-equal? (apply-unary-op 'null? '()) #t)
 (check-equal? (apply-unary-op 'null? '(1)) #f)
+
+;; apply-value-op: apply operator to arguments
+(check-equal? (apply-value-op '+ '(1 2)) 3)
+(check-equal? (apply-value-op '- '(1 2)) -1)
+(check-equal? (apply-value-op 'equal? '(1 2)) #f)
+(check-equal? (apply-value-op '< '(1 2)) #t)
+
+;; apply: evaluate expression
+(check-equal? (apply '(+ 1 2)) 3)
+(check-equal? (apply '(equal? 1 1)) #t)
+(check-equal? (apply '(car (1 2))) 1)
+(check-equal? (apply '(cons 1 (2))) '(1 2))
+
+;; evallist: recursively evaluate expressions
+(check-equal? (evallist '(+ 1 2) '((+ +))) '(+ 1 2))
+(check-equal? (evallist '(+ 1 x) '((+ +) (x 5))) '(+ 1 5))
+(check-equal? (evallist '(+ 1 (+ 2 3)) '((+ +))) '(+ 1 5))
+
+;; handle-if: check result of predicate and return appropriate result
+
+;; startEval: evaluate expression
+(check-equal? (startEval 1 '()) '1)
+; No symbol `x` defined raises error
+(check-exn exn:fail? (lambda () (startEval 'x '())))
+(check-equal? (startEval 'x '((x 5))) 5)
+(check-equal? (startEval '(quote 5) '()) '5)
+(check-equal? (startEval '(quote (1 2 3)) '()) '(1 2 3))
+
+
+;; TODO
+;; evallist
+;; apply
+;; handle-if

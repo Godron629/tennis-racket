@@ -52,6 +52,7 @@
     ((equal? f '/) (/ x y))
     ((equal? f '<) (< x y))
     ((equal? f '>) (> x y))
+    ((equal? f '=) (= x y))
     ((equal? f '>=) (>= x y))
     ((equal? f '<=) (<= x y))
     ((equal? f 'equal?) (equal? x y))
@@ -63,11 +64,7 @@
     ((equal? f 'quote) x)
     ((equal? f 'car) (car x))
     ((equal? f 'cdr) (cdr x))
-    ((equal? f 'number?) (number? x))
-    ((equal? f 'list?) (list? x))
-    ((equal? f 'symbol?) (symbol? x))
     ((equal? f 'pair?) (pair? x))
-    ((equal? f 'null?) (null? x))
     (else (error "apply-unary: operator not supported" f))))
 
 ;; Recursively evaluate every element of given expression

@@ -13,6 +13,10 @@
  apply
  apply-value-op
  handle-if
+ formals
+ body
+ funpart
+ envpart
  startEval)
 
 ;; Make a list of one element
@@ -93,6 +97,15 @@
       (startEval (cadddr exp) env)
       ;; Predicate is True, execute the consequent
       (startEval (caddr exp) env))))
+
+;; Get the formal parameter names from a lambda
+(define (formals exp) (cadr exp))
+;; Get the body of a lambda
+(define (body exp) (caddr exp))
+;; Get the arguments from a closure
+(define (funpart clo) (cadr clo))
+;; Get the environment from a closure
+(define (envpart clo) (caddr clo))
 
 (define (startEval exp env)
   (cond

@@ -77,9 +77,6 @@
   (test-case "car" (check-equal? (apply-unary-op 'car '(1 2 3)) 1))
   (test-case "cdr" (check-equal? (apply-unary-op 'cdr '(1 2 3)) '(2 3)))
   (test-case "cdr" (check-equal? (apply-unary-op 'cdr '(1)) '()))
-  (test-case "quote" (check-equal? (apply-unary-op 'quote '(1 2 3)) '(1 2 3)))
-  (test-case "quote" (check-equal? (apply-unary-op 'quote 'x) 'x))
-  (test-case "quote" (check-equal? (apply-unary-op 'quote 1) 1))
   (test-case "pair?" (check-equal? (apply-unary-op 'pair? '(1 2)) #t))
   (test-case "pair?" (check-equal? (apply-unary-op 'pair? '()) #f))
   (test-case "pair?" (check-equal? (apply-unary-op 'pair? '1) #f))
@@ -111,33 +108,33 @@
   (test-case "3" (check-equal? (evallist '(+ 1 (+ 2 3)) '((+ +))) '(+ 1 5)))
   )
 
-;; handle-if: check result of predicate and return appropriate result
-(check-equal? (handle-if '(if (equal? 1 1) 55 99) '((equal? equal?))) 55)
-(check-equal? (handle-if '(if (equal? 1 2) 55 99) '((equal? equal?))) 99)
+(define-test-suite handle-if-suite
+  "handle-if test suite"
+  ;; handle-if: check result of predicate and return appropriate result
+  (test-case "true" (check-equal? (handle-if '(if (equal? 1 1) 55 99) '((equal? equal?))) 55))
+  (test-case "false" (check-equal? (handle-if '(if (equal? 1 2) 55 99) '((equal? equal?))) 99))
+  )
 
-;; body: return body of a lambda
-(check-equal? (body '(lambda (x) (+ x 1))) '(+ x 1))
-(check-equal? (body '(lambda (x y z) (+ x y (- z 1)))) '(+ x y (- z 1)))
+(define-test-suite lambda-parts-suite
+  "lambda parts test suite"
+  ;; funpart: return the lambda of a closure
+  (test-case "funpart" (check-equal? (funpart '(closure (lambda (x) (+ x 1)))) '(lambda (x) (+ x 1))))
+  (test-case "formals" (check-equal? (formals '(closure (lambda (x y z) (+ x y (- z 1))))) '(lambda (x y z) (+ x y (- z 1)))))
+  (test-case "formals1" (check-equal? (formals '(lambda (x) (+ x 1))) '(x)))
+  (test-case "formals2" (check-equal? (formals '(lambda (x y z) (+ x y (- z 1)))) '(x y z)))
+  (test-case "envpart" (check-equal? (envpart '(closure (lambda (x) (+ x 1)) ((+ +)))) '((+ +))))
+  )
 
-;; formals: return formal parameters of a lambda
-(check-equal? (formals '(lambda (x) (+ x 1))) '(x))
-(check-equal? (formals '(lambda (x y z) (+ x y (- z 1)))) '(x y z))
-
-;; funpart: return the lambda of a closure
-(check-equal? (funpart '(closure (lambda (x) (+ x 1)))) '(lambda (x) (+ x 1)))
-(check-equal? (formals '(closure (lambda (x y z) (+ x y (- z 1))))) '(lambda (x y z) (+ x y (- z 1))))
-
-;; envpart: return the environment of a closure
-(check-equal? (envpart '(closure (lambda (x) (+ x 1)) ((+ +)))) '((+ +)))
-
-;; startEval: evaluate expression
-(check-equal? (startEval 1 '()) '1)
-; No symbol `x` defined raises error
-(check-exn exn:fail? (lambda () (startEval 'x '())))
-(check-equal? (startEval 'x '((x 5))) 5)
-(check-equal? (startEval '(quote 5) '()) '5)
-(check-equal? (startEval '(quote (1 2 3)) '()) '(1 2 3))
-;(check-equal? (startEval '(closure 45) '()))
+(define-test-suite startEval-suite
+  "startEval test suite"
+  ;; startEval: evaluate expression
+  (test-case "1" (check-equal? (startEval 1 '()) '1))
+  (test-case "2" (check-exn exn:fail? (lambda () (startEval 'x '()))))
+  (test-case "3" (check-equal? (startEval 'x '((x 5))) 5))
+  (test-case "4" (check-equal? (startEval '(quote 5) '()) '5))
+  (test-case "5" (check-equal? (startEval '(quote (1 2 3)) '()) '(1 2 3)))
+  (test-case "6" (check-equal? (startEval '(quote (quote (quote 5))) '()) '''5))
+  )
 
 (run-tests list1-suite)
 (run-tests list2-suite)
@@ -150,9 +147,6 @@
 (run-tests apply-value-op-suite)
 (run-tests apply-suite)
 (run-tests evallist-suite)
-
-
-;; TODO
-;; evallist
-;; apply
-;; handle-if
+(run-tests handle-if-suite)
+(run-tests lambda-parts-suite)
+(run-tests startEval-suite)

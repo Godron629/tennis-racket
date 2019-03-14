@@ -65,7 +65,6 @@
 ;; Apply function f to x
 (define (apply-unary-op f x)
   (cond
-    ((equal? f 'quote) x)
     ((equal? f 'car) (car x))
     ((equal? f 'cdr) (cdr x))
     ((equal? f 'pair?) (pair? x))

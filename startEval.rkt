@@ -18,6 +18,7 @@
  funpart
  envpart
  closure?
+ apply-closure
  startEval)
 
 ;; Make a list of one element
@@ -85,7 +86,7 @@
 (define (apply el)
   (if (closure? (car el))
       ;; took env out !!
-      99
+      (apply-closure (car el) (cdr el))
       (apply-value-op (car el) (cdr el))))
 
 ;; Apply primop to args
@@ -112,6 +113,11 @@
 ;; Get the environment from a closure
 (define (envpart clo) (caddr clo))
 
+;; Apply a closure to arguments
+(define (apply-closure clo args)
+  (startEval (body (funpart clo))
+             (mkassoc* (formals (funpart clo)) args (envpart clo))))
+
 (define (startEval exp env)
   (cond
     ((number? exp) exp)
@@ -120,18 +126,7 @@
          (*assoc exp env)
          (error "Symbol not defined: " exp)))
     ((equal? (car exp) 'quote) (cadr exp))
+    ((equal? (car exp) 'lambda) (list3 'closure exp env))
     ((equal? (car exp) 'if)
      (handle-if (exp env)))
     (else (apply (evallist exp env)))))
-
-
-
-
-
-
-
-
-
-
-
- 

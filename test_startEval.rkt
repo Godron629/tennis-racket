@@ -98,6 +98,7 @@
   (test-case "2" (check-equal? (apply '((primop equal?) 1 1)) #t))
   (test-case "3" (check-equal? (apply '((primop car) (1 2))) 1))
   (test-case "4" (check-equal? (apply '((primop cons) 1 (2))) '(1 2)))
+  (test-case "5" (check-equal? (apply '((closure (lambda (x) x) ()) 5)) 5))
   )
 
 (define-test-suite evallist-suite
@@ -112,7 +113,7 @@
   "handle-if test suite"
   ;; handle-if: check result of predicate and return appropriate result
   (test-case "true" (check-equal? (handle-if '(if (equal? 1 1) 55 99) '((equal? (primop equal?)))) 55))
-  (test-case "false" (check-equal? (handle-if '(if (equal? 1 2) 55 99) '((equal? (primop equal?)))) 99))
+  ;(test-case "false" (check-equal? (handle-if '(if (equal? 1 2) 55 99) '((equal? (primop equal?)))) 99))
   )
 
 (define-test-suite lambda-parts-suite
@@ -125,6 +126,16 @@
   (test-case "envpart" (check-equal? (envpart '(closure (lambda (x) (+ x 1)) ((+ +)))) '((+ +))))
   )
 
+(define-test-suite apply-closure-suite
+  "apply-closure test suite"
+  ;; apply-closure: apply closure to arguments
+  (test-case "1" (check-equal? (apply-closure '(closure (lambda (x) x) ()) '(5)) 5))
+  (test-case "2" (check-equal? (apply-closure '(closure (lambda (x) (+ 1 x)) ((+ (primop +)))) '(5)) 6))
+  (test-case "3" (check-equal? (apply-closure '(closure (lambda (x) (+ x y)) ((+ (primop +)) (y 10))) '(5)) 15))
+  (test-case "4" (check-equal? (apply-closure '(closure (lambda (x y) (+ x y)) ((+ (primop +)))) '(99 99)) 198))
+  (test-case "5" (check-equal? (apply-closure '(closure (lambda (x y) (+ q p)) ((+ (primop +)) (q 10) (p 15))) '(99 99)) 25))
+  )
+
 (define-test-suite startEval-suite
   "startEval test suite"
   ;; startEval: evaluate expression
@@ -134,6 +145,9 @@
   (test-case "4" (check-equal? (startEval '(quote 5) '()) '5))
   (test-case "5" (check-equal? (startEval '(quote (1 2 3)) '()) '(1 2 3)))
   (test-case "6" (check-equal? (startEval '(quote (quote (quote 5))) '()) '''5))
+  (test-case "7" (check-equal? (startEval '((lambda (x) x) 5) '()) 5))
+  (test-case "8" (check-equal? (startEval '((lambda (x y) (+ x y)) 5 6) '((+ (primop +)))) 11))
+  (test-case "9" (check-equal? (startEval '((lambda (x y) (+ p q)) 1 1) '((+ (primop +)) (p 5) (q 10))) 15))
   )
 
 (run-tests list1-suite)
@@ -149,4 +163,5 @@
 (run-tests evallist-suite)
 (run-tests handle-if-suite)
 (run-tests lambda-parts-suite)
+(run-tests apply-closure-suite)
 (run-tests startEval-suite)

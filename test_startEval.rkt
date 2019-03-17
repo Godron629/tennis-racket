@@ -172,6 +172,8 @@
   (test-case "8" (check-equal? (startEval '((lambda (x y) (+ x y)) 5 6) '((+ (primop +)))) 11))
   (test-case "9" (check-equal? (startEval '((lambda (x y) (+ p q)) 1 1) '((+ (primop +)) (p 5) (q 10))) 15))
   (test-case "10" (check-equal? (startEval '(let ((x 1)) x) '()) 1))
+  (test-case "11" (check-equal? (startEval '(let ((+ (lambda (x) (cdr x))) (- '(1 2 3 4 5))) (+ -)) '((cdr (primop cdr)))) '(2 3 4 5)))
+  (test-case "12" (check-equal? (startEval '(let ((inc (lambda (x) (+ x (quote 1))))) (inc (quote 5))) '((+ (primop +)))) '6))
   )
 
 (run-tests list1-suite)

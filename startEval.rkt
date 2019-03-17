@@ -19,6 +19,9 @@
  envpart
  closure?
  apply-closure
+ get-first-of-all
+ get-second-of-all
+ convert-let
  startEval)
 
 ;; Make a list of one element
@@ -118,6 +121,25 @@
   (startEval (body (funpart clo))
              (mkassoc* (formals (funpart clo)) args (envpart clo))))
 
+;; Convert let into a lambda
+(define (convert-let lamexp)
+  (append (list1 (list3 'lambda
+                (get-first-of-all (cadr lamexp))
+                (caddr lamexp)))
+         (get-second-of-all (cadr lamexp))))
+
+;; Get the first element of every sublist
+(define (get-first-of-all ls)
+  (cond
+    ((null? ls) '())
+    ((cons (caar ls) (get-first-of-all (cdr ls))))))
+
+;; Get the second element of every sublist
+(define (get-second-of-all ls)
+  (cond
+    ((null? ls) '())
+    ((cons (cadar ls) (get-second-of-all (cdr ls))))))
+
 (define (startEval exp env)
   (cond
     ((number? exp) exp)
@@ -126,6 +148,7 @@
          (*assoc exp env)
          (error "Symbol not defined: " exp)))
     ((equal? (car exp) 'quote) (cadr exp))
+    ((equal? (car exp) 'let) (startEval (convert-let exp) env))
     ((equal? (car exp) 'lambda) (list3 'closure exp env))
     ((equal? (car exp) 'if)
      (handle-if (exp env)))

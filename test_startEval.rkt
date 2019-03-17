@@ -136,6 +136,29 @@
   (test-case "5" (check-equal? (apply-closure '(closure (lambda (x y) (+ q p)) ((+ (primop +)) (q 10) (p 15))) '(99 99)) 25))
   )
 
+(define-test-suite get-first-of-all-suite
+  "get-first-of-all test suite"
+  ;; get-first-of-all: get the first element of every sublist
+  (test-case "empty" (check-equal? (get-first-of-all '()) '()))
+  (test-case "one" (check-equal? (get-first-of-all '((1 2))) '(1)))
+  (test-case "two" (check-equal? (get-first-of-all '((1 2) (3 4))) '(1 3)))
+  )
+
+(define-test-suite get-second-of-all-suite
+  "get-second-of-all test suite"
+  ;; get-second-of-all: get the second element of every sublist
+  (test-case "empty" (check-equal? (get-second-of-all '()) '()))
+  (test-case "one" (check-equal? (get-second-of-all '((1 2))) '(2)))
+  (test-case "two" (check-equal? (get-second-of-all '((1 2) (3 4))) '(2 4)))
+  )
+
+(define-test-suite convert-let-suite
+  "convert-let test suite"
+  ;; convert let: convert a let expression into a lambda
+  (test-case "1" (check-equal? (convert-let '(let ((x 1) (y 2)) 55)) '((lambda (x y) 55) 1 2)))
+  (test-case "2" (check-equal? (convert-let '(let ((x 1)) (+ x 10))) '((lambda (x) (+ x 10)) 1)))
+  )
+
 (define-test-suite startEval-suite
   "startEval test suite"
   ;; startEval: evaluate expression
@@ -148,6 +171,7 @@
   (test-case "7" (check-equal? (startEval '((lambda (x) x) 5) '()) 5))
   (test-case "8" (check-equal? (startEval '((lambda (x y) (+ x y)) 5 6) '((+ (primop +)))) 11))
   (test-case "9" (check-equal? (startEval '((lambda (x y) (+ p q)) 1 1) '((+ (primop +)) (p 5) (q 10))) 15))
+  (test-case "10" (check-equal? (startEval '(let ((x 1)) x) '()) 1))
   )
 
 (run-tests list1-suite)
@@ -164,4 +188,7 @@
 (run-tests handle-if-suite)
 (run-tests lambda-parts-suite)
 (run-tests apply-closure-suite)
+(run-tests get-first-of-all-suite)
+(run-tests get-second-of-all-suite)
+(run-tests convert-let-suite)
 (run-tests startEval-suite)

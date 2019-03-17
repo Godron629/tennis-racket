@@ -17,6 +17,7 @@
  body
  funpart
  envpart
+ closure?
  startEval)
 
 ;; Make a list of one element
@@ -76,17 +77,22 @@
       (cons (startEval (car el) env)
             (evallist (cdr el) env))))
 
+;; Asset expression is a closure
+(define (closure? f)
+  (equal? (car f) 'closure))
+
 ;; Evaluate expression el
 (define (apply el)
-  ;; took env out !!
-  (apply-value-op (car el) (cdr el)))
+  (if (closure? (car el))
+      ;; took env out !!
+      99
+      (apply-value-op (car el) (cdr el))))
 
 ;; Apply primop to args
 (define (apply-value-op primop args)
   (if (equal? (length args) 1)
-      ;; took (cadr primop) out !!
-      (apply-unary-op primop (car args))
-      (apply-binary-op primop (car args) (cadr args))))
+      (apply-unary-op (cadr primop) (car args))
+      (apply-binary-op (cadr primop) (car args) (cadr args))))
 
 ;; Check predicate and return consequent or alternative
 (define (handle-if exp env)

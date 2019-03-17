@@ -85,34 +85,34 @@
 (define-test-suite apply-value-op-suite
   "apply-value-op test suite"
   ;; apply-value-op: apply operator to arguments
-  (test-case "+" (check-equal? (apply-value-op '+ '(1 2)) 3))
-  (test-case "-" (check-equal? (apply-value-op '- '(1 2)) -1))
-  (test-case "equal?" (check-equal? (apply-value-op 'equal? '(1 2)) #f))
-  (test-case "<" (check-equal? (apply-value-op '< '(1 2)) #t))
+  (test-case "+" (check-equal? (apply-value-op '(primop +) '(1 2)) 3))
+  (test-case "-" (check-equal? (apply-value-op '(primop -) '(1 2)) -1))
+  (test-case "equal?" (check-equal? (apply-value-op '(primop equal?) '(1 2)) #f))
+  (test-case "<" (check-equal? (apply-value-op '(primop <) '(1 2)) #t))
   )
 
 (define-test-suite apply-suite
   "apply test suite"
   ;; apply: evaluate expression
-  (test-case "1" (check-equal? (apply '(+ 1 2)) 3))
-  (test-case "2" (check-equal? (apply '(equal? 1 1)) #t))
-  (test-case "3" (check-equal? (apply '(car (1 2))) 1))
-  (test-case "4" (check-equal? (apply '(cons 1 (2))) '(1 2)))
+  (test-case "1" (check-equal? (apply '((primop +) 1 2)) 3))
+  (test-case "2" (check-equal? (apply '((primop equal?) 1 1)) #t))
+  (test-case "3" (check-equal? (apply '((primop car) (1 2))) 1))
+  (test-case "4" (check-equal? (apply '((primop cons) 1 (2))) '(1 2)))
   )
 
 (define-test-suite evallist-suite
   "evallist test suite"
   ;; evallist: recursively evaluate expressions
-  (test-case "1" (check-equal? (evallist '(+ 1 2) '((+ +))) '(+ 1 2)))
-  (test-case "2" (check-equal? (evallist '(+ 1 x) '((+ +) (x 5))) '(+ 1 5)))
-  (test-case "3" (check-equal? (evallist '(+ 1 (+ 2 3)) '((+ +))) '(+ 1 5)))
+  (test-case "1" (check-equal? (evallist '(+ 1 2) '((+ (primop +)))) '((primop +) 1 2)))
+  (test-case "2" (check-equal? (evallist '(+ 1 x) '((+ (primop +)) (x 5))) '((primop +) 1 5)))
+  (test-case "3" (check-equal? (evallist '(+ 1 (+ 2 3)) '((+ (primop +)))) '((primop +) 1 5)))
   )
 
 (define-test-suite handle-if-suite
   "handle-if test suite"
   ;; handle-if: check result of predicate and return appropriate result
-  (test-case "true" (check-equal? (handle-if '(if (equal? 1 1) 55 99) '((equal? equal?))) 55))
-  (test-case "false" (check-equal? (handle-if '(if (equal? 1 2) 55 99) '((equal? equal?))) 99))
+  (test-case "true" (check-equal? (handle-if '(if (equal? 1 1) 55 99) '((equal? (primop equal?)))) 55))
+  (test-case "false" (check-equal? (handle-if '(if (equal? 1 2) 55 99) '((equal? (primop equal?)))) 99))
   )
 
 (define-test-suite lambda-parts-suite

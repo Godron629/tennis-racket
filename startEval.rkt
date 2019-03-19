@@ -22,7 +22,7 @@
  get-first-of-all
  get-second-of-all
  convert-let
- startEval)
+ *startEval)
 
 ;; Make a list of one element
 (define (list1 x) (cons x '()))
@@ -78,7 +78,7 @@
 ;; Recursively evaluate every element of given expression
 (define (evallist el env)
   (if (null? el) '()
-      (cons (startEval (car el) env)
+      (cons (*startEval (car el) env)
             (evallist (cdr el) env))))
 
 ;; Asset expression is a closure
@@ -100,12 +100,12 @@
 
 ;; Check predicate and return consequent or alternative
 (define (handle-if exp env)
-  (let ((result (startEval (cadr exp) env)))
+  (let ((result (*startEval (cadr exp) env)))
     (if (or (null? result) (not result))
       ;; Predicate is False, execute the alternative
-      (startEval (cadddr exp) env)
+      (*startEval (cadddr exp) env)
       ;; Predicate is True, execute the consequent
-      (startEval (caddr exp) env))))
+      (*startEval (caddr exp) env))))
 
 ;; Get the formal parameter names from a lambda
 (define (formals exp) (cadr exp))
@@ -118,7 +118,7 @@
 
 ;; Apply a closure to arguments
 (define (apply-closure clo args)
-  (startEval (body (funpart clo))
+  (*startEval (body (funpart clo))
              (mkassoc* (formals (funpart clo)) args (envpart clo))))
 
 ;; Convert let into a lambda
@@ -140,7 +140,7 @@
     ((null? ls) '())
     ((cons (cadar ls) (get-second-of-all (cdr ls))))))
 
-(define (startEval exp env)
+(define (*startEval exp env)
   (cond
     ((number? exp) exp)
     ((symbol? exp)
@@ -148,7 +148,7 @@
          (*assoc exp env)
          (error "Symbol not defined: " exp)))
     ((equal? (car exp) 'quote) (cadr exp))
-    ((equal? (car exp) 'let) (startEval (convert-let exp) env))
+    ((equal? (car exp) 'let) (*startEval (convert-let exp) env))
     ((equal? (car exp) 'lambda) (list3 'closure exp env))
     ((equal? (car exp) 'if)
      (handle-if (exp env)))

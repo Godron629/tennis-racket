@@ -22,7 +22,8 @@
  get-first-of-all
  get-second-of-all
  convert-let
- *startEval)
+ *startEval
+ startEval)
 
 ;; Make a list of one element
 (define (list1 x) (cons x '()))
@@ -153,3 +154,24 @@
     ((equal? (car exp) 'if)
      (handle-if (exp env)))
     (else (apply (evallist exp env)))))
+
+(define operators
+   '((+ (primop +))
+     (- (primop -))
+     (* (primop *))
+     (/ (primop /))
+     (= (primop =))
+     (equal? (primop equal?))
+     (< (primop <))
+     (> (primop >))
+     (<= (primop <=))
+     (>= (primop >=))
+     (car (primop car))
+     (cdr (primop cdr))
+     (cons (primop cons))))
+
+(define (startEval exp)
+  (*startEval exp operators))
+
+     
+              

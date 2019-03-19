@@ -162,18 +162,18 @@
 (define-test-suite *startEval-suite
   "*startEval test suite"
   ;; *startEval: evaluate expression
-  (test-case "1" (check-equal? (*startEval 1 '()) '1))
-  (test-case "2" (check-exn exn:fail? (lambda () (*startEval 'x '()))))
+  (test-case "1" (check-equal? (startEval 1) '1))
+  (test-case "2" (check-exn exn:fail? (lambda () (*startEval 'x))))
   (test-case "3" (check-equal? (*startEval 'x '((x 5))) 5))
-  (test-case "4" (check-equal? (*startEval '(quote 5) '()) '5))
-  (test-case "5" (check-equal? (*startEval '(quote (1 2 3)) '()) '(1 2 3)))
-  (test-case "6" (check-equal? (*startEval '(quote (quote (quote 5))) '()) '''5))
-  (test-case "7" (check-equal? (*startEval '((lambda (x) x) 5) '()) 5))
+  (test-case "4" (check-equal? (startEval '(quote 5)) '5))
+  (test-case "5" (check-equal? (startEval '(quote (1 2 3))) '(1 2 3)))
+  (test-case "6" (check-equal? (startEval '(quote (quote (quote 5)))) '''5))
+  (test-case "7" (check-equal? (startEval '((lambda (x) x) 5)) 5))
   (test-case "8" (check-equal? (*startEval '((lambda (x y) (+ x y)) 5 6) '((+ (primop +)))) 11))
   (test-case "9" (check-equal? (*startEval '((lambda (x y) (+ p q)) 1 1) '((+ (primop +)) (p 5) (q 10))) 15))
-  (test-case "10" (check-equal? (*startEval '(let ((x 1)) x) '()) 1))
-  (test-case "11" (check-equal? (*startEval '(let ((+ (lambda (x) (cdr x))) (- '(1 2 3 4 5))) (+ -)) '((cdr (primop cdr)))) '(2 3 4 5)))
-  (test-case "12" (check-equal? (*startEval '(let ((inc (lambda (x) (+ x (quote 1))))) (inc (quote 5))) '((+ (primop +)))) '6))
+  (test-case "10" (check-equal? (startEval '(let ((x 1)) x)) 1))
+  (test-case "11" (check-equal? (startEval '(let ((+ (lambda (x) (cdr x))) (- '(1 2 3 4 5))) (+ -))) '(2 3 4 5)))
+  (test-case "12" (check-equal? (startEval '(let ((inc (lambda (x) (+ x (quote 1))))) (inc (quote 5)))) '6))
   )
 
 (run-tests list1-suite)

@@ -9,15 +9,14 @@
  dict-update-rec
  apply-binary-op
  apply-unary-op
- evallist
- apply
+ evaluate-expression-rec
+ evaluate-expression
  apply-value-op
  handle-if
  formals
  body
  funpart
  envpart
- closure?
  apply-closure
  get-first-of-all
  get-second-of-all
@@ -57,7 +56,7 @@
 ;; param item key
 ;; param item value
 ;;
-;; return list
+;; return item | False
 (define (dict-get key value)
   (if (not (assoc key value)) #f
       (cadr (assoc key value))))
@@ -68,8 +67,8 @@
 ;; If a dict with existing key value pairs is given, add on to it.
 ;; If a key already exists within the given dict, replace the value
 ;;
-;; param key item
-;; param value item
+;; param item key
+;; param item value
 ;; param list dict
 ;;
 ;; return list
@@ -82,14 +81,33 @@
           (cons (mk-list-of-two key value) (cdr dict))
           (cons (car dict) (dict-update key value (cdr dict))))))
 
-;; Recursively add multiple key value pairs to a dictionary using dict-update.
-;;   This is equivilent to calling dict-update multiple times.
-(define (dict-update-rec keys values al)
-  (if (null? keys) al
-      (dict-update-rec (cdr keys) (cdr values)
-                (dict-update (car keys) (car values) al))))
+;; Recursively add multiple key value pairs to a dictionary
+;;   using dict-update.
+;;
+;; This is equivilent to calling dict-update multiple times.
+;;
+;; param list keys
+;; param list values
+;; param list dict
+;;
+;; return list
+(define (dict-update-rec keys values dict)
+  (if (null? keys)
+      ;; Then nothing to do
+      dict
+      ;; Else recursively add key value pairs to dict
+      (dict-update-rec
+       (cdr keys)
+       (cdr values)
+       (dict-update (car keys) (car values) dict))))
 
-;; Apply function f to x and y
+;; Apply function with name f to parameters x and y
+;;
+;; param symbol f
+;; param item x
+;; param item y
+;;
+;; return any
 (define (apply-binary-op f x y)
   (cond
     ((equal? f 'cons) (cons x y))
@@ -105,7 +123,12 @@
     ((equal? f 'equal?) (equal? x y))
     (else (error "apply-binary: operator not supported" f))))
 
-;; Apply function f to x
+;; Apply function with name f to parameter x
+;;
+;; param symbol f
+;; param item x
+;;
+;; return any
 (define (apply-unary-op f x)
   (cond
     ((equal? f 'car) (car x))
@@ -113,22 +136,32 @@
     ((equal? f 'pair?) (pair? x))
     (else (error "apply-unary: operator not supported" f))))
 
-;; Recursively evaluate every element of given expression
-(define (evallist el env)
-  (if (null? el) '()
-      (cons (*startEval (car el) env)
-            (evallist (cdr el) env))))
+;; Recursively evaluate sub-expression of an expression
+;;
+;; param list exp
+;; param list env
+;;
+;; return any
+(define (evaluate-expression-rec exp env)
+  (if (null? exp)
+      ;; Then nothing to do
+      '()
+      ;; Else evaluate the current element and recurse
+      (cons
+       (*startEval (car exp) env)
+       (evaluate-expression-rec (cdr exp) env))))
 
-;; Asset expression is a closure
-(define (closure? f)
-  (equal? (car f) 'closure))
-
-;; Evaluate expression el
-(define (apply el)
-  (if (closure? (car el))
-      ;; took env out !!
-      (apply-closure (car el) (cdr el))
-      (apply-value-op (car el) (cdr el))))
+;; Evaluate expression exp
+;;
+;; param list exp
+;;
+;; return any
+(define (evaluate-expression exp)
+  (if (equal? (caar exp) 'closure)
+      ;; It's a closure (lambda)
+      (apply-closure (car exp) (cdr exp))
+      ;; It's racket operator!
+      (apply-value-op (car exp) (cdr exp))))
 
 ;; Apply primop to args
 (define (apply-value-op primop args)
@@ -190,7 +223,7 @@
     ((equal? (car exp) 'lambda) (mk-list-of-three 'closure exp env))
     ((equal? (car exp) 'if)
      (handle-if (exp env)))
-    (else (apply (evallist exp env)))))
+    (else (evaluate-expression(evaluate-expression-rec exp env)))))
 
 (define operators
    '((+ (primop +))

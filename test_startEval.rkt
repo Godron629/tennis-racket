@@ -92,22 +92,22 @@
   (test-case "<" (check-equal? (apply-value-op '(primop <) '(1 2)) #t))
   )
 
-(define-test-suite apply-suite
-  "apply test suite"
-  ;; apply: evaluate expression
-  (test-case "1" (check-equal? (apply '((primop +) 1 2)) 3))
-  (test-case "2" (check-equal? (apply '((primop equal?) 1 1)) #t))
-  (test-case "3" (check-equal? (apply '((primop car) (1 2))) 1))
-  (test-case "4" (check-equal? (apply '((primop cons) 1 (2))) '(1 2)))
-  (test-case "5" (check-equal? (apply '((closure (lambda (x) x) ()) 5)) 5))
+(define-test-suite evaluate-expression-suite
+  "evaluate-expression test suite"
+  ;; evaluate-expression: evaluate expression
+  (test-case "1" (check-equal? (evaluate-expression '((primop +) 1 2)) 3))
+  (test-case "2" (check-equal? (evaluate-expression '((primop equal?) 1 1)) #t))
+  (test-case "3" (check-equal? (evaluate-expression '((primop car) (1 2))) 1))
+  (test-case "4" (check-equal? (evaluate-expression '((primop cons) 1 (2))) '(1 2)))
+  (test-case "5" (check-equal? (evaluate-expression '((closure (lambda (x) x) ()) 5)) 5))
   )
 
-(define-test-suite evallist-suite
-  "evallist test suite"
-  ;; evallist: recursively evaluate expressions
-  (test-case "1" (check-equal? (evallist '(+ 1 2) '((+ (primop +)))) '((primop +) 1 2)))
-  (test-case "2" (check-equal? (evallist '(+ 1 x) '((+ (primop +)) (x 5))) '((primop +) 1 5)))
-  (test-case "3" (check-equal? (evallist '(+ 1 (+ 2 3)) '((+ (primop +)))) '((primop +) 1 5)))
+(define-test-suite evaluate-expression-rec-suite
+  "evaluate-expression-rec test suite"
+  ;; evaluate-expression-rec: recursively evaluate expressions
+  (test-case "1" (check-equal? (evaluate-expression-rec '(+ 1 2) '((+ (primop +)))) '((primop +) 1 2)))
+  (test-case "2" (check-equal? (evaluate-expression-rec '(+ 1 x) '((+ (primop +)) (x 5))) '((primop +) 1 5)))
+  (test-case "3" (check-equal? (evaluate-expression-rec '(+ 1 (+ 2 3)) '((+ (primop +)))) '((primop +) 1 5)))
   )
 
 (define-test-suite handle-if-suite
@@ -186,8 +186,8 @@
 (run-tests apply-binary-suite)
 (run-tests apply-unary-suite)
 (run-tests apply-value-op-suite)
-(run-tests apply-suite)
-(run-tests evallist-suite)
+(run-tests evaluate-expression-suite)
+(run-tests evaluate-expression-rec-suite)
 (run-tests handle-if-suite)
 (run-tests lambda-parts-suite)
 (run-tests apply-closure-suite)

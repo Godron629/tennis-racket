@@ -1,12 +1,12 @@
 #lang racket
 
 (provide
- list1
- list2
- list3
- *assoc
- mkassoc
- mkassoc*
+ mk-list-of-one
+ mk-list-of-two
+ mk-list-of-three
+ dict-get
+ dict-update
+ dict-update-rec
  apply-binary-op
  apply-unary-op
  evallist
@@ -26,31 +26,40 @@
  startEval)
 
 ;; Make a list of one element
-(define (list1 x) (cons x '()))
-;; Make a list of two elements
-(define (list2 x y) (cons x (cons y '())))
-;; Make a list of three elements
-(define (list3 x y z) (cons x (cons y (cons z '()))))
+(define (mk-list-of-one item) (cons item '()))
 
-;; Modify racket's `assoc` by returning only value of the
-;; returned key value pair and false otherwise.
-(define (*assoc x y)
+;; Make a list of two elements
+(define (mk-list-of-two item1 item2)
+  (cons item1 (cons item2 '())))
+
+;; Make a list of three elements
+(define (mk-list-of-three item1 item2 item3)
+  (cons item1 (cons item2 (cons item3 '()))))
+
+;; Modify racket's `assoc` to work like Python's dict.get()
+;; by returning only the value of a given key instead of the
+;; key value pair. If the key does not exist, return False.
+(define (dict-get x y)
   (if (not (assoc x y)) #f
       (cadr (assoc x y))))
 
 ;; Make a list of key value pairs.
 ;; If a list of existing key value pairs is given, add on to it.
 ;; If a key already exists within the given list, replace it. 
-(define (mkassoc x y alist)
-  (if (null? alist) (list1 (list2 x y))
-      (if (equal? x (caar alist)) (cons (list2 x y) (cdr alist))
-          (cons (car alist) (mkassoc x y (cdr alist))))))
+(define (dict-update key value dict)
+  (if (null? dict)
+      ;; Then start our own list
+      (mk-list-of-one (mk-list-of-two key value))
+      ;; Else use the given list
+      (if (equal? key (caar dict))
+          (cons (mk-list-of-two key value) (cdr dict))
+          (cons (car dict) (dict-update key value (cdr dict))))))
 
-;; Recursively add multiple key value pairs to a list using mkassoc
-(define (mkassoc* keys values al)
+;; Recursively add multiple key value pairs to a list using dict-update
+(define (dict-update-rec keys values al)
   (if (null? keys) al
-      (mkassoc* (cdr keys) (cdr values)
-                (mkassoc (car keys) (car values) al))))
+      (dict-update-rec (cdr keys) (cdr values)
+                (dict-update (car keys) (car values) al))))
 
 ;; Apply function f to x and y
 (define (apply-binary-op f x y)
@@ -120,11 +129,11 @@
 ;; Apply a closure to arguments
 (define (apply-closure clo args)
   (*startEval (body (funpart clo))
-             (mkassoc* (formals (funpart clo)) args (envpart clo))))
+             (dict-update-rec (formals (funpart clo)) args (envpart clo))))
 
 ;; Convert let into a lambda
 (define (convert-let lamexp)
-  (append (list1 (list3 'lambda
+  (append (mk-list-of-one (mk-list-of-three 'lambda
                 (get-first-of-all (cadr lamexp))
                 (caddr lamexp)))
          (get-second-of-all (cadr lamexp))))
@@ -145,12 +154,12 @@
   (cond
     ((number? exp) exp)
     ((symbol? exp)
-     (if (*assoc exp env)
-         (*assoc exp env)
+     (if (dict-get exp env)
+         (dict-get exp env)
          (error "Symbol not defined: " exp)))
     ((equal? (car exp) 'quote) (cadr exp))
     ((equal? (car exp) 'let) (*startEval (convert-let exp) env))
-    ((equal? (car exp) 'lambda) (list3 'closure exp env))
+    ((equal? (car exp) 'lambda) (mk-list-of-three 'closure exp env))
     ((equal? (car exp) 'if)
      (handle-if (exp env)))
     (else (apply (evallist exp env)))))

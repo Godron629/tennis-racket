@@ -3,48 +3,49 @@
 (require rackunit "startEval.rkt")
 (require rackunit/text-ui)
 
-(define-test-suite list1-suite
-  "list test suite"
-  (test-case "empty list" (check-equal? (list1 '()) '(())))
-  (test-case "number" (check-equal? (list1 '5) '(5)))
-  (test-case "list" (check-equal? (list1 '(1 2 3)) '((1 2 3))))
+(define-test-suite mk-list-of-one-suite
+  "mk-list-of-one test suite"
+  (test-case "empty list" (check-equal? (mk-list-of-one '()) '(())))
+  (test-case "number" (check-equal? (mk-list-of-one '5) '(5)))
+  (test-case "list" (check-equal? (mk-list-of-one '(1 2 3)) '((1 2 3))))
   )
 
-(define-test-suite list2-suite "list2 test suite"
-  (test-case "numbers" (check-equal? (list2 1 2) '(1 2)))
-  (test-case "empty list" (check-equal? (list2 '() 2) '(() 2)))
-  (test-case "nested list" (check-equal? (list2 '(1 2 3) '(4 5 6)) '((1 2 3) (4 5 6))))
+(define-test-suite mk-list-of-two-suite
+  "mk-list-of-two test suite"
+  (test-case "numbers" (check-equal? (mk-list-of-two 1 2) '(1 2)))
+  (test-case "empty list" (check-equal? (mk-list-of-two '() 2) '(() 2)))
+  (test-case "nested list" (check-equal? (mk-list-of-two '(1 2 3) '(4 5 6)) '((1 2 3) (4 5 6))))
   )
 
-(define-test-suite list3-suite
-  "list3 test suite"
-  (test-case "integers" (check-equal? (list3 1 2 3) '(1 2 3)))
-  (test-case "empty lists" (check-equal? (list3 '() '() '()) '(() () ())))
-  (test-case "nested lists" (check-equal? (list3 '(1 2 3) '(4 5 6) '(7 8 9)) '((1 2 3) (4 5 6) (7 8 9))))
+(define-test-suite mk-list-of-three-suite
+  "mk-list-of-three test suite"
+  (test-case "integers" (check-equal? (mk-list-of-three 1 2 3) '(1 2 3)))
+  (test-case "empty lists" (check-equal? (mk-list-of-three '() '() '()) '(() () ())))
+  (test-case "nested lists" (check-equal? (mk-list-of-three '(1 2 3) '(4 5 6) '(7 8 9)) '((1 2 3) (4 5 6) (7 8 9))))
   )
 
-(define-test-suite *assoc-suite
-  "*assoc test suite"
-  ;; *assoc: modify racket assoc to return only value, not k/v pair
-  (test-case "in" (check-equal? (*assoc 1 '((1 2))) 2))
-  (test-case "not in" (check-equal? (*assoc 1 '((2 3))) #f))
-  (test-case "in second" (check-equal? (*assoc 2 '((1 2) (2 3))) 3))
+(define-test-suite dict-get-suite
+  "dict-get test suite"
+  ;; dict-get: modify racket assoc to return only value, not k/v pair
+  (test-case "in" (check-equal? (dict-get 1 '((1 2))) 2))
+  (test-case "not in" (check-equal? (dict-get 1 '((2 3))) #f))
+  (test-case "in second" (check-equal? (dict-get 2 '((1 2) (2 3))) 3))
   )
 
-(define-test-suite mkassoc-suite
-  "mkassoc test suite"
-  ;; mkassoc: return a list of key value pairs
-  (test-case "none in list" (check-equal? (mkassoc 1 2 '()) '((1 2))))
-  (test-case "overwrite key" (check-equal? (mkassoc 1 2 '((1 3))) '((1 2))))
-  (test-case "some in list" (check-equal? (mkassoc 1 2 '((3 4))) '((3 4) (1 2))))
+(define-test-suite dict-update-suite
+  "dict-update test suite"
+  ;; dict-update: return a list of key value pairs
+  (test-case "none in list" (check-equal? (dict-update 1 2 '()) '((1 2))))
+  (test-case "overwrite key" (check-equal? (dict-update 1 2 '((1 3))) '((1 2))))
+  (test-case "some in list" (check-equal? (dict-update 1 2 '((3 4))) '((3 4) (1 2))))
   )
 
-(define-test-suite mkassoc*-suite
-  "mkassoc* test suite"
-  ;; mkassoc: recursively call mkassoc to add multiple key values at once
-  (test-case "1" (check-equal? (mkassoc* '(1 2 3) '(4 5 6) '()) '((1 4) (2 5) (3 6))))
-  (test-case "2" (check-equal? (mkassoc* '(1 2) '(4 5) '((9 10))) '((9 10) (1 4) (2 5))))
-  (test-case "3" (check-equal? (mkassoc* '(1 2) '(4 5) '((1 10))) '((1 4) (2 5))))
+(define-test-suite dict-update-rec-suite
+  "dict-update-rec test suite"
+  ;; dict-update: recursively call dict-update to add multiple key values at once
+  (test-case "1" (check-equal? (dict-update-rec '(1 2 3) '(4 5 6) '()) '((1 4) (2 5) (3 6))))
+  (test-case "2" (check-equal? (dict-update-rec '(1 2) '(4 5) '((9 10))) '((9 10) (1 4) (2 5))))
+  (test-case "3" (check-equal? (dict-update-rec '(1 2) '(4 5) '((1 10))) '((1 4) (2 5))))
   )
 
 (define-test-suite apply-binary-suite
@@ -176,12 +177,12 @@
   (test-case "12" (check-equal? (startEval '(let ((inc (lambda (x) (+ x (quote 1))))) (inc (quote 5)))) '6))
   )
 
-(run-tests list1-suite)
-(run-tests list2-suite)
-(run-tests list3-suite)
-(run-tests *assoc-suite)
-(run-tests mkassoc-suite)
-(run-tests mkassoc*-suite)
+(run-tests mk-list-of-one-suite)
+(run-tests mk-list-of-two-suite)
+(run-tests mk-list-of-three-suite)
+(run-tests dict-get-suite)
+(run-tests dict-update-suite)
+(run-tests dict-update-rec-suite)
 (run-tests apply-binary-suite)
 (run-tests apply-unary-suite)
 (run-tests apply-value-op-suite)

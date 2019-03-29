@@ -26,36 +26,64 @@
  startEval)
 
 ;; Make a list of one element
+;; 
+;; param item item1
+;;
+;; return list
 (define (mk-list-of-one item) (cons item '()))
 
 ;; Make a list of two elements
+;; param item item1
+;; param item item2
+;;
+;; return list
 (define (mk-list-of-two item1 item2)
   (cons item1 (cons item2 '())))
 
 ;; Make a list of three elements
+;;
+;; param item item1
+;; param item item2
+;; param item item3
+;;
+;; return list
 (define (mk-list-of-three item1 item2 item3)
   (cons item1 (cons item2 (cons item3 '()))))
 
 ;; Modify racket's `assoc` to work like Python's dict.get()
-;; by returning only the value of a given key instead of the
-;; key value pair. If the key does not exist, return False.
-(define (dict-get x y)
-  (if (not (assoc x y)) #f
-      (cadr (assoc x y))))
+;;   by returning only the value of a given key instead of the
+;;   key value pair. If the key does not exist, return False.
+;;
+;; param item key
+;; param item value
+;;
+;; return list
+(define (dict-get key value)
+  (if (not (assoc key value)) #f
+      (cadr (assoc key value))))
 
-;; Make a list of key value pairs.
-;; If a list of existing key value pairs is given, add on to it.
-;; If a key already exists within the given list, replace it. 
+;; Make a dictionary (map) of key value pairs with a list.
+;; 
+;; Access this with `dict-get`.
+;; If a dict with existing key value pairs is given, add on to it.
+;; If a key already exists within the given dict, replace the value
+;;
+;; param key item
+;; param value item
+;; param list dict
+;;
+;; return list
 (define (dict-update key value dict)
   (if (null? dict)
-      ;; Then start our own list
+      ;; Then start our own 
       (mk-list-of-one (mk-list-of-two key value))
-      ;; Else use the given list
+      ;; Else use the given dict
       (if (equal? key (caar dict))
           (cons (mk-list-of-two key value) (cdr dict))
           (cons (car dict) (dict-update key value (cdr dict))))))
 
-;; Recursively add multiple key value pairs to a list using dict-update
+;; Recursively add multiple key value pairs to a dictionary using dict-update.
+;;   This is equivilent to calling dict-update multiple times.
 (define (dict-update-rec keys values al)
   (if (null? keys) al
       (dict-update-rec (cdr keys) (cdr values)

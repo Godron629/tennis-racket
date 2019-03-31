@@ -10,7 +10,6 @@
  apply-binary-op
  apply-unary-op
  evaluate-expression-rec
- evaluate-expression
  apply-value-op
  handle-if
  formals
@@ -151,18 +150,6 @@
        (*startEval (car exp) env)
        (evaluate-expression-rec (cdr exp) env))))
 
-;; Evaluate expression exp
-;;
-;; param list exp
-;;
-;; return any
-(define (evaluate-expression exp)
-  (if (equal? (caar exp) 'closure)
-      ;; It's a closure (lambda)
-      (apply-closure (car exp) (cdr exp))
-      ;; It's racket operator!
-      (apply-value-op (car exp) (cdr exp))))
-
 ;; Apply primop to args
 (define (apply-value-op primop args)
   (if (equal? (length args) 1)
@@ -223,7 +210,12 @@
     ((equal? (car exp) 'lambda) (mk-list-of-three 'closure exp env))
     ((equal? (car exp) 'if)
      (handle-if (exp env)))
-    (else (evaluate-expression(evaluate-expression-rec exp env)))))
+    (else
+     (let ((result (evaluate-expression-rec exp env)))
+       (if (equal? (caar result) 'closure)
+           (apply-closure (car result) (cdr result))
+           (apply-value-op (car result) (cdr result)))))))
+
 
 (define operators
    '((+ (primop +))

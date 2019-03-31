@@ -92,16 +92,6 @@
   (test-case "<" (check-equal? (apply-value-op '(primop <) '(1 2)) #t))
   )
 
-(define-test-suite evaluate-expression-suite
-  "evaluate-expression test suite"
-  ;; evaluate-expression: evaluate expression
-  (test-case "1" (check-equal? (evaluate-expression '((primop +) 1 2)) 3))
-  (test-case "2" (check-equal? (evaluate-expression '((primop equal?) 1 1)) #t))
-  (test-case "3" (check-equal? (evaluate-expression '((primop car) (1 2))) 1))
-  (test-case "4" (check-equal? (evaluate-expression '((primop cons) 1 (2))) '(1 2)))
-  (test-case "5" (check-equal? (evaluate-expression '((closure (lambda (x) x) ()) 5)) 5))
-  )
-
 (define-test-suite evaluate-expression-rec-suite
   "evaluate-expression-rec test suite"
   ;; evaluate-expression-rec: recursively evaluate expressions
@@ -186,7 +176,6 @@
 (run-tests apply-binary-suite)
 (run-tests apply-unary-suite)
 (run-tests apply-value-op-suite)
-(run-tests evaluate-expression-suite)
 (run-tests evaluate-expression-rec-suite)
 (run-tests handle-if-suite)
 (run-tests lambda-parts-suite)

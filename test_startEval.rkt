@@ -155,6 +155,8 @@
   (test-case "10" (check-equal? (startEval '(let ((x 1)) x)) 1))
   (test-case "11" (check-equal? (startEval '(let ((+ (lambda (x) (cdr x))) (- '(1 2 3 4 5))) (+ -))) '(2 3 4 5)))
   (test-case "12" (check-equal? (startEval '(let ((inc (lambda (x) (+ x (quote 1))))) (inc (quote 5)))) '6))
+  (test-case "13" (check-equal? (startEval '(if (equal? 5 5) 99 55)) 99))
+  (test-case "14" (check-equal? (startEval '(if (equal? 5 10) 99 55)) 55))
   )
 
 (run-tests mk-list-of-one-suite)

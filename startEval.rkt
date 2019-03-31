@@ -289,7 +289,7 @@
      (mk-closure exp env))
     ((equal? (car exp) 'if)
      ;; evaluate if statement
-     (handle-if (exp env)))
+     (handle-if exp env))
     (else
      ;; If nothing else, it must be a function.
      ;; This can be a racket function or a lambda.
